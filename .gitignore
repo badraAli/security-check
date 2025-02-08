@@ -1,0 +1,9 @@
+# Ignorer le fichier .env
+.env
+
+# Ignorer les fichiers de cache Python
+__pycache__/
+*.pyc
+
+# Ignorer les environnements virtuels
+fraudapi/
