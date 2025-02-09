@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 import logging
 from dotenv import load_dotenv
 import os
+import boto3
+import watchtower
+import time
 
 load_dotenv()  # Charge les variables d'environnement du fichier .env
 
@@ -22,6 +25,24 @@ DATABASE = {
 # Whitelist de numéros (exemple)
 WHITELIST = {"+2250123456789", "+2259876543210"}
 
+# Configuration des logs CloudWatch
+client = boto3.client('logs', region_name='us-east-1')  # Remplacez par votre région AWS
+LOG_GROUP = '/flask/app-logs'
+LOG_STREAM = 'business-logs'
+
+# Créer un logger pour les logs métier
+def log_to_cloudwatch(message, level='info'):
+
+    # Ajouter le niveau de log au message
+    formatted_message = f"[{level.upper()}] {message}"
+
+    # Envoyer le log à CloudWatch
+    client.put_log_events(
+        logGroupName=LOG_GROUP,
+        logStreamName=LOG_STREAM,
+        logEvents=[{'timestamp': int(time.time() * 1000), 'message': formatted_message}]
+    )
+
 # Configuration des logs
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -34,6 +55,7 @@ def get_db_connection():
 def create_transaction():
     data = request.get_json()
     logger.info(f"Requête reçue : {data}")
+    #log_to_cloudwatch(f"Requête reçue : {data}", level='info')
 
     client_phone = data['client_phone']
     amount = data['amount']
@@ -41,26 +63,31 @@ def create_transaction():
     # Vérifier si le numéro est dans la whitelist
     if client_phone in WHITELIST:
         logger.info(f"Numéro {client_phone} dans la whitelist, règles de gestion ignorées.")
+        #log_to_cloudwatch(f"Numéro {client_phone} dans la whitelist, règles de gestion ignorées.", level='info')
         return process_transaction(data)
 
     # Vérifier si le numéro est blacklisté
     if is_blacklisted(client_phone):
         logger.warning(f"Numéro {client_phone} est blacklisté.")
+        #log_to_cloudwatch(f"Numéro {client_phone} est blacklisté.", level='warn')
         return jsonify({"error": "Numéro blacklisté pendant 30 minutes"}), 403
 
     # Vérifier le nombre de requêtes dans les 5 dernières minutes
     if not check_request_limit(client_phone):
         logger.warning(f"Numéro {client_phone} a dépassé la limite de 3 requêtes en 5 minutes.")
+        #log_to_cloudwatch(f"Numéro {client_phone} a dépassé la limite de 3 requêtes en 5 minutes.", level='warn')
         blacklist_number(client_phone)
         return jsonify({"error": "Limite de 3 requêtes en 5 minutes atteinte, numéro blacklisté pendant 30 minutes"}), 429
 
     # Appliquer les règles de gestion
     if not check_daily_limit(client_phone, amount):
         logger.warning(f"Limite quotidienne dépassée pour le numéro {client_phone}.")
+        #log_to_cloudwatch(f"Limite quotidienne dépassée pour le numéro {client_phone}.", level='warn')
         return jsonify({"error": "Daily limit exceeded"}), 400
 
     if not check_monthly_limit(client_phone, amount):
         logger.warning(f"Limite mensuelle dépassée pour le numéro {client_phone}.")
+        #log_to_cloudwatch(f"Limite mensuelle dépassée pour le numéro {client_phone}.", level='warn')
         return jsonify({"error": "Monthly limit exceeded"}), 400
 
     # Traiter la transaction
@@ -77,6 +104,7 @@ def process_transaction(data):
     cur.close()
     conn.close()
     logger.info(f"Transaction enregistrée pour le numéro {data['client_phone']}.")
+    log_to_cloudwatch(f"Transaction enregistrée pour le numéro {data['client_phone']}.", level='info')
     return jsonify({"message": "Transaction created successfully"}), 201
 
 def check_daily_limit(client_phone, amount):
@@ -154,6 +182,7 @@ def blacklist_number(client_phone):
     cur.close()
     conn.close()
     logger.warning(f"Numéro {client_phone} blacklisté pendant 30 minutes.")
+    log_to_cloudwatch(f"Numéro {client_phone} blacklisté pendant 30 minutes.", level='warn')
 
 
 if __name__ == '__main__':
