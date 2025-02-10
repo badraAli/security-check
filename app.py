@@ -14,12 +14,20 @@ load_dotenv()  # Charge les variables d'environnement du fichier .env
 app = Flask(__name__)
 
 # Configuration de la base de données
+#DATABASE = {
+#    'dbname': os.environ.get('DATABASE_NAME'),
+#    'user': os.environ.get('DATABASE_USER'),
+#    'password': os.environ.get('PASSWORD'),
+#    'host': os.environ.get('HOST'),
+#    'port': os.environ.get('PORT')
+#}
+
 DATABASE = {
-    'dbname': os.environ.get('DATABASE_NAME'),
-    'user': os.environ.get('DATABASE_USER'),
-    'password': os.environ.get('PASSWORD'),
-    'host': os.environ.get('HOST'),
-    'port': os.environ.get('PORT')
+    'dbname': 'api_fraud_db',
+    'user': 'postgres',
+    'password': 'password',
+    'host': 'fraudapidatabase.cdam2sweqqn6.us-east-1.rds.amazonaws.com',
+    'port': '5432'
 }
 
 # Whitelist de numéros (exemple)
