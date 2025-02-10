@@ -1,0 +1,31 @@
+name: Deploy Flask App to Amazon Linux
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+    - name: Deploy to Amazon Linux
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.SERVER_IP }} << 'EOF'
+        cd /home/ec2-user/security-check
+        git pull origin main
+        source fraudapi/bin/activate
+        pip install -r requirements.txt
+        sudo systemctl restart nginx
+        sudo systemctl restart security-check
+        EOF
