@@ -13,7 +13,7 @@ load_dotenv()  # Charge les variables d'environnement du fichier .env
 
 app = Flask(__name__)
 
-#"test" 2 3 4 5
+#"test" 2 3 4 5 6
 # Configuration de la base de données
 DATABASE = {
     'dbname': os.getenv('DATABASE_NAME'),
