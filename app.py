@@ -95,6 +95,7 @@ def create_transaction():
     return process_transaction(data)
 
 def process_transaction(data):
+    log_to_cloudwatch(f"Processing transaction from {data['client_phone']}.", level='info')
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
