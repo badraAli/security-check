@@ -4,6 +4,7 @@
 # Ignorer les fichiers de cache Python
 __pycache__/
 *.pyc
+*.service
 
 # Ignorer les environnements virtuels
 fraudapi/
