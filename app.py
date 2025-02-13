@@ -16,11 +16,11 @@ app = Flask(__name__)
 #"test" 2 3 4 5 6 7 8 9
 # Configuration de la base de données
 DATABASE = {
-    'dbname': os.getenv('DATABASE_NAME'),
-    'user': os.getenv('DATABASE_USER'),
-    'password': os.getenv('PASSWORD'),
-    'host': os.getenv('HOST'),
-    'port': os.getenv('PORT')
+    'dbname': os.getenv('api_fraude_db'),
+    'user': os.getenv('postgres'),
+    'password': os.getenv('password'),
+    'host': os.getenv('localhost'),
+    'port': os.getenv('5432')
 }
 
 # Whitelist de numéros (exemple)

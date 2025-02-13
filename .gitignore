@@ -8,3 +8,6 @@ __pycache__/
 
 # Ignorer les environnements virtuels
 fraudapi/
+
+# Ignorer les fichiers .scannerwork
+.scannerwork/
