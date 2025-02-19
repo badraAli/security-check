@@ -4,6 +4,14 @@ sudo yum install nginx -y
 Pip install unicorn
 sudo yum install git -y (optionnel)
 
+creer l'environnement virtuel
+activer l'environnement virtuel
+
+pip install flask
+pip install gunicorn
+
+
+pip install -r requirements.txt
 
 
 - creer un fichier .env sur le serveur pour stocker de maniere permanente les variables d'environnements
