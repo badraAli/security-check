@@ -1,3 +1,11 @@
+sudo yum update -y
+sudo yum install -y python3 python3-pip -y
+sudo yum install nginx -y
+Pip install unicorn
+sudo yum install git -y (optionnel)
+
+
+
 - creer un fichier .env sur le serveur pour stocker de maniere permanente les variables d'environnements
 - creer un fichier gitignore pour ignorer certains fichiers
 
@@ -78,6 +86,28 @@ server {
         alias /path/to/your/app/static/;
     }
 }
+----------------------------------------------------------------------------------
+
+-security-check.service
+----------------------------------------------------------------------------------
+sudo nano /etc/systemd/system/security-check.service
+
+[Unit]
+Description=Gunicorn instance to serve security check api
+After=network.target
+
+[Service]
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/security-check
+EnvironmentFile=/home/ec2-user/security-check/.env
+ExecStart=/home/ec2-user/security-check/fraudapi/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl restart security-check
 ----------------------------------------------------------------------------------
 
 -github action
