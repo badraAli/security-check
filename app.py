@@ -15,12 +15,20 @@ app = Flask(__name__)
 
 #"test" 2 3 4 5 6 7 8 9
 # Configuration de la base de données
+#DATABASE = {
+#    'dbname': os.getenv('api_fraude_db'),
+#    'user': os.getenv('postgres'),
+#    'password': os.getenv('password'),
+#    'host': os.getenv('localhost'),
+#    'port': os.getenv('5432')
+#}
+
 DATABASE = {
-    'dbname': os.getenv('api_fraude_db'),
-    'user': os.getenv('postgres'),
-    'password': os.getenv('password'),
-    'host': os.getenv('localhost'),
-    'port': os.getenv('5432')
+    'dbname': os.getenv('DATABASE_NAME'),
+    'user': os.getenv('DATABASE_USER'),
+    'password': os.getenv('PASSWORD'),
+    'host': os.getenv('HOST'),
+    'port': os.getenv('PORT')
 }
 
 # Whitelist de numéros (exemple)
@@ -29,7 +37,7 @@ WHITELIST = {"+2250123456789", "+2259876543210"}
 # Configuration des logs CloudWatch
 client = boto3.client('logs', region_name='us-east-1')  # Remplacez par votre région AWS
 LOG_GROUP = '/flask/app-logs'
-LOG_STREAM = 'business-logs'
+LOG_STREAM = 'business-log'
 
 # Créer un logger pour les logs métier
 def log_to_cloudwatch(message, level='info'):
